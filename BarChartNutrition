@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   xmlns:foodnutritionservice="services.foodnutritionservice.*"
+			   xmlns:valueObjects="valueObjects.*"
+			   xmlns:charts="mx.charts.*"
+			   xmlns:series="mx.charts.series.*"
+			   applicationDPI="240" currentState="ShoppingList">
+	<fx:Style source="TestDrive.css"/>
+	<fx:Script>
+		<![CDATA[
+			import com.adobe.serializers.utility.TypeUtility;
+			
+			import mx.events.FlexEvent;
+			
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				currentState="Nutrition";
+			}
+			
+			protected function button2_clickHandler(event:MouseEvent):void
+			{
+				currentState="ShoppingList";
+			}			
+			
+			protected function button_clickHandler(event:Event):void
+			{	
+				
+				if(textInput.text!="" )
+				{
+				getAllFoodnutritionResult.token = foodnutritionService.getFoodnutritionByName(textInput.text);
+				
+				switch (textInput.text){
+					case "Bread":
+						red.visible=false;
+						green.visible=true;
+						orange.visible=false;
+						break;
+					case "Chocolate":
+						red.visible=false;
+						green.visible=false;
+						orange.visible=true;
+						break;
+					default:
+						red.visible=true;
+						green.visible=false;
+						orange.visible=false;
+						break;
+						
+				}
+				}
+				
+				
+
+			}			
+			
+			protected function button3_clickHandler(event:MouseEvent):void
+			{
+				currentState="NutritionChart";
+			}		
+			
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="ShoppingList"/>
+		<s:State name="Nutrition"/>
+		<s:State name="NutritionChart"/>
+	</s:states>
+
+	<fx:Declarations>
+		<s:CallResponder id="getAllFoodnutritionResult"
+						 result="foodNutrition = getAllFoodnutritionResult.lastResult as FoodNutrition"/>
+		<foodnutritionservice:FoodnutritionService id="foodnutritionService"/>
+		<valueObjects:FoodNutrition id="foodNutrition"/>
+		<s:CallResponder id="getFoodnutritionByNameResult"/>
+		
+	</fx:Declarations>
+	<s:Button x="96" y="70" label="Cost" fontSize="28"/>
+	<s:Button x="513" y="65" label="Nutrition" click="button1_clickHandler(event)" fontSize="28"
+			  x.Nutrition="388" y.Nutrition="70" enabled.Nutrition="false"
+			  x.NutritionChart="388" y.NutritionChart="70" enabled.NutritionChart="false"
+			  x.ShoppingList="386" y.ShoppingList="71"/>
+	<s:Button x="976" y="65" label="History" fontSize="28"
+			  x.Nutrition="733" y.Nutrition="69"
+			  x.NutritionChart="733" y.NutritionChart="69"
+			  x.ShoppingList="710" y.ShoppingList="71"/>
+	<s:Label x="463" y="197" fontSize="36" text="Shopping List"
+			 x.Nutrition="378" y.Nutrition="184" text.Nutrition="Nutrition"
+			 x.NutritionChart="378" y.NutritionChart="184" text.NutritionChart="Nutrition"
+			 x.ShoppingList="341" y.ShoppingList="256"/>
+	<s:Form includeIn="ShoppingList" x="180" y="669">
+		<s:FormItem>
+			<s:TextInput id="textInput" change="button_clickHandler(event)"/>
+		</s:FormItem>
+		<s:FormItem>
+			<s:TextInput id="textInput1"/>
+		</s:FormItem>
+	
+	</s:Form>
+	<s:Button includeIn="Nutrition,NutritionChart" x="103" y="210" label="Back" click="button2_clickHandler(event)"/>
+
+	<s:Form id="Form1" includeIn="Nutrition" x="67" y="285" width="250" height="336">
+		<s:FormItem label="Name">
+			<s:Label id="nameLabel" text="{foodNutrition.name}"/>
+		</s:FormItem>
+		<s:FormItem label="Carbohydrate">
+			<s:Label id="carbohydrateLabel" text="{foodNutrition.carbohydrate}"/>
+		</s:FormItem>
+		<s:FormItem label="Protein">
+			<s:Label id="proteinLabel" text="{foodNutrition.protein}"/>
+		</s:FormItem>
+		<s:FormItem label="Fat">
+			<s:Label id="fatLabel" text="{foodNutrition.fat}"/>
+		</s:FormItem>
+		<s:FormItem label="Calories">
+			<s:Label id="caloriesLabel" text="{foodNutrition.calories}"/>
+		</s:FormItem>
+		<s:FormItem label="OfWhichSugarsCarb">
+			<s:Label id="ofWhichSugarsCarbLabel" text="{foodNutrition.ofWhichSugarsCarb}"/>
+		</s:FormItem>
+		<s:FormItem label="OfWhichSugars">
+			<s:Label id="ofWhichSugarsLabel" text="{foodNutrition.ofWhichSugars}"/>
+		</s:FormItem>
+		<s:FormItem label="Sodium">
+			<s:Label id="sodiumLabel" text="{foodNutrition.sodium}"/>
+		</s:FormItem>
+		
+	</s:Form>
+	
+	<s:Image id="green" includeIn="ShoppingList" visible="false"
+			 x="750" y="668" width="25" height="25" source="@Embed('libs/greendot.png')"/>
+	<s:Image id="orange" includeIn="ShoppingList" visible="false"
+			 x="750" y="668" width="25" height="25" source="@Embed('libs/orangedot.png')"/>
+	<s:Image id="red" includeIn="ShoppingList" visible="false"
+			 x="750" y="668" width="25" height="25" source="@Embed('libs/reddot.png')"/>
+	<s:Button includeIn="Nutrition" x="378" y="933" label="Chart-view"
+			  click="button3_clickHandler(event)"/>
+	<s:Button includeIn="ShoppingList" x="58" y="1437" label="..."/>
+	<charts:ColumnChart id="columnchart1" includeIn="NutritionChart" x="109" y="292"
+						dataProvider="{getAllFoodnutritionResult.lastResult}" showDataTips="true">
+		<charts:series>
+			<series:ColumnSeries id="columnSeries" displayName="Series 1" yField="calories"/>
+			<series:ColumnSeries id="columnSeries2" displayName="Series Name" yField="fat"/>
+			<series:ColumnSeries id="columnSeries3" displayName="Series Name" yField="carbohydrate"/>
+		</charts:series>
+		<charts:horizontalAxis>
+			<charts:CategoryAxis id="categoryAxis" categoryField="name"/>
+		</charts:horizontalAxis>
+	</charts:ColumnChart>
+	
+</s:Application>
